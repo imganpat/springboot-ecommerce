@@ -1,0 +1,5 @@
+@baseUrl = http://localhost:8080
+@productId = 1
+
+### Get one product by ID
+GET {{baseUrl}}/api/products/{{productId}}

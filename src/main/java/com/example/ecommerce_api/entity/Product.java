@@ -20,6 +20,10 @@ public class Product {
 
     private int quantity;
 
+    private String imageFilename;
+
+    private boolean deleted;
+
     public Product() {
     }
 
@@ -64,5 +68,21 @@ public class Product {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public String getImageFilename() {
+        return imageFilename;
+    }
+
+    public void setImageFilename(String imageFilename) {
+        this.imageFilename = imageFilename;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

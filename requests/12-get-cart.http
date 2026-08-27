@@ -1,0 +1,6 @@
+@baseUrl = http://localhost:8080
+@userEmail = user@example.com
+
+### Get the user's cart
+GET {{baseUrl}}/api/cart
+X-User-Email: {{userEmail}}

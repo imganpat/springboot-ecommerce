@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:8080
+@adminEmail = admin@example.com
+@productId = 1
+
+### Soft-delete a product as admin
+DELETE {{baseUrl}}/api/admin/products/{{productId}}
+X-User-Email: {{adminEmail}}

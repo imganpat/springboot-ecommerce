@@ -1,0 +1,10 @@
+@baseUrl = http://localhost:8080
+@adminEmail = admin@example.com
+@productId = 1
+
+### Upload an image using Echo API's Binary body mode
+POST {{baseUrl}}/api/admin/products/{{productId}}/image
+X-User-Email: {{adminEmail}}
+Content-Type: image/jpeg
+
+< ./keyboard.jpg

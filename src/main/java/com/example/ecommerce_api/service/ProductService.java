@@ -15,13 +15,21 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    public Product findById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findAllByDeletedFalse();
     }
 
     public Product getProductById(Long id) {
-        return productRepository.findById(id)
+        return productRepository.findByIdAndDeletedFalse(id)
                 .orElse(null);
+    }
+
+    public List<Product> getAllProductsForAdmin() {
+        return productRepository.findAll();
     }
 
     public Product createProduct(Product product) {
@@ -51,7 +59,21 @@ public class ProductService {
             return false;
         }
 
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id).orElseThrow();
+        product.setDeleted(true);
+        productRepository.save(product);
+        return true;
+    }
+
+    public boolean restoreProduct(Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+
+        if (product == null) {
+            return false;
+        }
+
+        product.setDeleted(false);
+        productRepository.save(product);
         return true;
     }
 }
