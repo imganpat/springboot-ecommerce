@@ -29,7 +29,7 @@ const Home = () => {
         <AppLayout>
             {/* Banner Section */}
             <div className="flex flex-col space-x-8!">
-                <div className="flex justify-center mt-16! w-screen bg-gradient-to-r from-violet-600 to-violet-700 py-12!">
+                <div className="flex justify-center mt-16! w-full bg-gradient-to-r from-violet-600 to-violet-700 py-12!">
                     <div className="w-4/5">
                         <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                             <div>

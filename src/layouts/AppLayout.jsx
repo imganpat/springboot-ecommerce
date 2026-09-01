@@ -31,7 +31,7 @@ const AppLayout = ({ children }) => {
                 </nav>
             </header>
 
-            <main className='h-full flex flex-col gap-8 overflow-x-hidden'>
+            <main className='h-full flex flex-col gap-8'>
                 {children}
             </main>
         </>
