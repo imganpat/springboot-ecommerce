@@ -106,10 +106,6 @@ const Login = () => {
                         <Label htmlFor="password">Password</Label>
                         <Input id="password" name="password" type="password" placeholder="At least 6 characters" minLength={6} required value={formData.password} onChange={handleChange} />
                     </div>
-                    <div className="flex gap-2">
-                        <Input id="admin" name="admin" type="checkbox" checked={formData.admin} onChange={handleChange} className={"size-4"} />
-                        <Label htmlFor="admin">Admin</Label>
-                    </div>
                     {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
                     <Button className="mt-2 h-10 w-full" disabled={isSubmitting} type="submit">
                         {isSubmitting ? <LoaderCircle aria-hidden="true" className="animate-spin" /> : <>{"Login"}<ArrowRight aria-hidden="true" /></>}

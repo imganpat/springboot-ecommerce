@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import Popup from "@/components/ui/popup";
 import { useAuth } from "@/context/AuthContext";
 import {
     createAdminProduct,
@@ -12,6 +13,7 @@ import {
     restoreAdminProduct,
     updateAdminProduct,
     uploadProductImage,
+    uploadProductImages,
 } from "@/services/adminProductService";
 
 const emptyForm = {
@@ -27,9 +29,10 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [formData, setFormData] = useState(emptyForm);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImages, setSelectedImages] = useState([]);
     const [imagePreview, setImagePreview] = useState("");
     const [editingProductId, setEditingProductId] = useState(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [actionMessage, setActionMessage] = useState({ type: "", text: "" });
 
@@ -50,7 +53,7 @@ const AdminDashboard = () => {
 
     const resetForm = () => {
         setFormData(emptyForm);
-        setSelectedImage(null);
+        setSelectedImages([]);
         setImagePreview("");
         setEditingProductId(null);
     };
@@ -64,16 +67,16 @@ const AdminDashboard = () => {
     };
 
     const handleImageChange = (event) => {
-        const file = event.target.files?.[0];
+        const files = Array.from(event.target.files || []);
 
-        if (!file) {
-            setSelectedImage(null);
+        if (files.length === 0) {
+            setSelectedImages([]);
             setImagePreview("");
             return;
         }
 
-        setSelectedImage(file);
-        setImagePreview(URL.createObjectURL(file));
+        setSelectedImages(files);
+        setImagePreview(URL.createObjectURL(files[0]));
     };
 
     const handleSubmit = async (event) => {
@@ -115,8 +118,8 @@ const AdminDashboard = () => {
                 setActionMessage({ type: "success", text: "Product created successfully." });
             }
 
-            if (selectedImage && savedProduct?.id) {
-                const uploadedProduct = await uploadProductImage(savedProduct.id, selectedImage);
+            if (selectedImages.length > 0 && savedProduct?.id) {
+                const uploadedProduct = await uploadProductImages(savedProduct.id, selectedImages);
                 setProducts((current) =>
                     current.map((product) =>
                         product.id === uploadedProduct.id ? uploadedProduct : product
@@ -124,7 +127,7 @@ const AdminDashboard = () => {
                 );
                 setActionMessage({
                     type: "success",
-                    text: `${editingProductId ? "Product updated" : "Product created"} successfully with image.`
+                    text: `${editingProductId ? "Product updated" : "Product created"} successfully with images.`
                 });
             }
 
@@ -145,28 +148,34 @@ const AdminDashboard = () => {
             price: String(product.price ?? 0),
             quantity: String(product.quantity ?? 0),
         });
-        setSelectedImage(null);
+        setSelectedImages([]);
         setImagePreview(product.imageFilename ? `http://localhost:8080/uploads/images/${product.imageFilename}` : "");
         setActionMessage({ type: "", text: "" });
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    const handleDelete = async (productId) => {
-        if (!window.confirm("Delete this product from the admin inventory?")) {
+    const handleDelete = (productId) => {
+        setConfirmDeleteId(productId);
+    };
+
+    const confirmDeleteProduct = async () => {
+        if (!confirmDeleteId) {
             return;
         }
 
         try {
-            await deleteAdminProduct(productId);
+            await deleteAdminProduct(confirmDeleteId);
             setProducts((current) =>
                 current.map((product) =>
-                    product.id === productId ? { ...product, deleted: true } : product
+                    product.id === confirmDeleteId ? { ...product, deleted: true } : product
                 )
             );
             setActionMessage({ type: "success", text: "Product marked as deleted." });
         } catch (requestError) {
             const message = requestError.response?.data?.message || "Unable to delete product.";
             setActionMessage({ type: "error", text: message });
+        } finally {
+            setConfirmDeleteId(null);
         }
     };
 
@@ -253,10 +262,11 @@ const AdminDashboard = () => {
                             </div>
 
                             <div className="space-y-2 md:col-span-2">
-                                <label className="text-sm font-medium">Product image</label>
+                                <label className="text-sm font-medium">Product images</label>
                                 <Input
                                     type="file"
                                     accept="image/*"
+                                    multiple
                                     onChange={handleImageChange}
                                 />
                                 {(imagePreview || (editingProductId && products.find((product) => product.id === editingProductId)?.imageFilename)) && (
@@ -294,6 +304,16 @@ const AdminDashboard = () => {
                     </form>
                 </CardContent>
             </Card>
+
+            <Popup
+                open={Boolean(confirmDeleteId)}
+                title="Delete product"
+                description="This product will be hidden from the storefront and can be restored later from the admin dashboard."
+                confirmText="Delete"
+                confirmVariant="destructive"
+                onConfirm={confirmDeleteProduct}
+                onCancel={() => setConfirmDeleteId(null)}
+            />
 
             <div className="mt-6! p-4! shadow-none flex flex-col gap-4">
                 <CardHeader>

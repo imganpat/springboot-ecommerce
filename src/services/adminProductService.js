@@ -66,3 +66,21 @@ export const uploadProductImage = async (productId, imageFile) => {
 
     return response.data;
 };
+
+export const uploadProductImages = async (productId, imageFiles) => {
+    if (!imageFiles || imageFiles.length === 0) {
+        return null;
+    }
+
+    const formData = new FormData();
+    imageFiles.forEach((file) => formData.append("images", file));
+
+    const response = await axiosInstance.post(`/admin/products/${productId}/images`, formData, {
+        headers: {
+            ...getAdminHeaders(),
+            "Content-Type": "multipart/form-data",
+        },
+    });
+
+    return response.data;
+};

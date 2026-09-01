@@ -1,5 +1,4 @@
 import ProductCard from "@/components/ProductCard";
-import AppLayout from "@/layouts/AppLayout";
 import { getAllProducts } from "@/services/productService";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
@@ -57,12 +56,6 @@ const Home = () => {
                             {products.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
-                            {products.map((product) => (
-                                <ProductCard key={product.id} product={product} />
-                            ))}
-                            {products.map((product) => (
-                                <ProductCard key={product.id} product={product} />
-                            ))}
                         </div>
                     </div>
                 )}
@@ -71,4 +64,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default Home;    

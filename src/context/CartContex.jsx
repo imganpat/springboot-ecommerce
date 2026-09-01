@@ -17,12 +17,31 @@
 //     return useContext(CartContext);
 // }
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+
+const CART_STORAGE_KEY = "cart";
 
 const CartContext = createContext();
 
+const readCartFromStorage = () => {
+    try {
+        const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+        return storedCart ? JSON.parse(storedCart) : [];
+    } catch {
+        return [];
+    }
+};
+
 export const CartProvider = ({ children }) => {
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(() => readCartFromStorage());
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+        } catch {
+            // Ignore storage errors silently.
+        }
+    }, [cart]);
 
     const addToCart = (product, quantity = 1) => {
         setCart((prevCart) => {
