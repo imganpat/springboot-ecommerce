@@ -52,3 +52,17 @@ export const restoreAdminProduct = async (productId) => {
 
     return response.data;
 };
+
+export const uploadProductImage = async (productId, imageFile) => {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    const response = await axiosInstance.post(`/admin/products/${productId}/image`, formData, {
+        headers: {
+            ...getAdminHeaders(),
+            "Content-Type": "multipart/form-data",
+        },
+    });
+
+    return response.data;
+};

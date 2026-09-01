@@ -11,6 +11,7 @@ import {
     getAdminProducts,
     restoreAdminProduct,
     updateAdminProduct,
+    uploadProductImage,
 } from "@/services/adminProductService";
 
 const emptyForm = {
@@ -26,6 +27,8 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [formData, setFormData] = useState(emptyForm);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
     const [editingProductId, setEditingProductId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [actionMessage, setActionMessage] = useState({ type: "", text: "" });
@@ -47,6 +50,8 @@ const AdminDashboard = () => {
 
     const resetForm = () => {
         setFormData(emptyForm);
+        setSelectedImage(null);
+        setImagePreview("");
         setEditingProductId(null);
     };
 
@@ -56,6 +61,19 @@ const AdminDashboard = () => {
             ...current,
             [name]: value,
         }));
+    };
+
+    const handleImageChange = (event) => {
+        const file = event.target.files?.[0];
+
+        if (!file) {
+            setSelectedImage(null);
+            setImagePreview("");
+            return;
+        }
+
+        setSelectedImage(file);
+        setImagePreview(URL.createObjectURL(file));
     };
 
     const handleSubmit = async (event) => {
@@ -83,16 +101,31 @@ const AdminDashboard = () => {
                 throw new Error("Quantity must be a whole number.");
             }
 
+            let savedProduct;
+
             if (editingProductId) {
-                const updatedProduct = await updateAdminProduct(editingProductId, payload);
+                savedProduct = await updateAdminProduct(editingProductId, payload);
                 setProducts((current) =>
-                    current.map((product) => (product.id === updatedProduct.id ? updatedProduct : product))
+                    current.map((product) => (product.id === savedProduct.id ? savedProduct : product))
                 );
                 setActionMessage({ type: "success", text: "Product updated successfully." });
             } else {
-                const createdProduct = await createAdminProduct(payload);
-                setProducts((current) => [createdProduct, ...current]);
+                savedProduct = await createAdminProduct(payload);
+                setProducts((current) => [savedProduct, ...current]);
                 setActionMessage({ type: "success", text: "Product created successfully." });
+            }
+
+            if (selectedImage && savedProduct?.id) {
+                const uploadedProduct = await uploadProductImage(savedProduct.id, selectedImage);
+                setProducts((current) =>
+                    current.map((product) =>
+                        product.id === uploadedProduct.id ? uploadedProduct : product
+                    )
+                );
+                setActionMessage({
+                    type: "success",
+                    text: `${editingProductId ? "Product updated" : "Product created"} successfully with image.`
+                });
             }
 
             resetForm();
@@ -112,6 +145,8 @@ const AdminDashboard = () => {
             price: String(product.price ?? 0),
             quantity: String(product.quantity ?? 0),
         });
+        setSelectedImage(null);
+        setImagePreview(product.imageFilename ? `http://localhost:8080/uploads/images/${product.imageFilename}` : "");
         setActionMessage({ type: "", text: "" });
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -216,6 +251,25 @@ const AdminDashboard = () => {
                                     placeholder="0"
                                 />
                             </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-sm font-medium">Product image</label>
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                />
+                                {(imagePreview || (editingProductId && products.find((product) => product.id === editingProductId)?.imageFilename)) && (
+                                    <img
+                                        src={
+                                            imagePreview ||
+                                            `http://localhost:8080/uploads/images/${products.find((product) => product.id === editingProductId)?.imageFilename}`
+                                        }
+                                        alt="Product preview"
+                                        className="mt-2 h-40 w-full rounded-md border object-cover"
+                                    />
+                                )}
+                            </div>
                         </div>
 
                         {actionMessage.text && (
@@ -260,6 +314,14 @@ const AdminDashboard = () => {
                                     className={`rounded-xl border p-4! shadow-sm ${product.deleted ? "border-dashed border-muted-foreground/40 bg-muted/30" : ""
                                         }`}
                                 >
+                                    {product.imageFilename && (
+                                        <img
+                                            src={`http://localhost:8080/uploads/images/${product.imageFilename}`}
+                                            alt={product.name}
+                                            className="mb-3 h-40 w-full rounded-md object-cover"
+                                        />
+                                    )}
+
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
                                             <p className="text-lg font-semibold">{product.name}</p>
