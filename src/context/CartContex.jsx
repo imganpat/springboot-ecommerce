@@ -21,12 +21,20 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const CART_STORAGE_KEY = "cart";
 
+const isProductUnavailable = (product) => {
+    return Boolean(product?.deleted) || Number(product?.quantity ?? 0) <= 0;
+};
+
+const sanitizeCart = (items = []) => {
+    return items.filter((item) => !isProductUnavailable(item));
+};
+
 const CartContext = createContext();
 
 const readCartFromStorage = () => {
     try {
         const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-        return storedCart ? JSON.parse(storedCart) : [];
+        return storedCart ? sanitizeCart(JSON.parse(storedCart)) : [];
     } catch {
         return [];
     }
@@ -37,24 +45,49 @@ export const CartProvider = ({ children }) => {
 
     useEffect(() => {
         try {
-            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+            const cleanCart = sanitizeCart(cart);
+            if (JSON.stringify(cleanCart) !== JSON.stringify(cart)) {
+                setCart(cleanCart);
+                return;
+            }
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cleanCart));
         } catch {
             // Ignore storage errors silently.
         }
     }, [cart]);
 
     const addToCart = (product, quantity = 1) => {
+        if (isProductUnavailable(product)) {
+            return false;
+        }
+
+        const requestedQuantity = Number(quantity) > 0 ? Number(quantity) : 1;
+
         setCart((prevCart) => {
             const existingItem = prevCart.find(
                 (item) => item.id === product.id
             );
 
             if (existingItem) {
+                const nextQuantity = existingItem.cartQuantity + requestedQuantity;
+                const maxAvailable = Number(product.quantity ?? 0);
+
+                if (maxAvailable > 0 && nextQuantity > maxAvailable) {
+                    return prevCart.map((item) =>
+                        item.id === product.id
+                            ? {
+                                ...item,
+                                cartQuantity: maxAvailable,
+                            }
+                            : item
+                    );
+                }
+
                 return prevCart.map((item) =>
                     item.id === product.id
                         ? {
                             ...item,
-                            cartQuantity: item.cartQuantity + quantity,
+                            cartQuantity: nextQuantity,
                         }
                         : item
                 );
@@ -64,10 +97,12 @@ export const CartProvider = ({ children }) => {
                 ...prevCart,
                 {
                     ...product,
-                    cartQuantity: quantity,
+                    cartQuantity: Math.min(requestedQuantity, Number(product.quantity ?? requestedQuantity)),
                 },
             ];
         });
+
+        return true;
     };
 
     const removeFromCart = (productId) => {
@@ -83,14 +118,20 @@ export const CartProvider = ({ children }) => {
         }
 
         setCart((prevCart) =>
-            prevCart.map((item) =>
-                item.id === productId
-                    ? {
-                        ...item,
-                        cartQuantity: quantity,
+            prevCart
+                .filter((item) => !isProductUnavailable(item))
+                .map((item) => {
+                    if (item.id !== productId) {
+                        return item;
                     }
-                    : item
-            )
+
+                    const maxAvailable = Number(item.quantity ?? 0);
+                    return {
+                        ...item,
+                        cartQuantity: maxAvailable > 0 ? Math.min(quantity, maxAvailable) : 0,
+                    };
+                })
+                .filter((item) => item.cartQuantity > 0)
         );
     };
 
@@ -98,12 +139,14 @@ export const CartProvider = ({ children }) => {
         setCart([]);
     };
 
-    const cartCount = cart.reduce(
+    const validCart = sanitizeCart(cart);
+
+    const cartCount = validCart.reduce(
         (total, item) => total + item.cartQuantity,
         0
     );
 
-    const cartTotal = cart.reduce(
+    const cartTotal = validCart.reduce(
         (total, item) => total + item.price * item.cartQuantity,
         0
     );

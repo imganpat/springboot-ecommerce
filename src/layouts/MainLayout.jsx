@@ -1,6 +1,6 @@
 const MainLayout = ({ children }) => {
     return (
-        <div className="flex h-screen items-center justify-center">
+        <div className="min-h-screen flex justify-center items-center overflow-hidden bg-background text-foreground">
             {children}
         </div>
     );

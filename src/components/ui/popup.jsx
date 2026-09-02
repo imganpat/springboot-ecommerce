@@ -12,6 +12,8 @@ const Popup = ({
     onCancel,
     children,
     confirmVariant = "default",
+    hideFooter = false,
+    contentClassName = "",
 }) => {
     useEffect(() => {
         if (!open) return;
@@ -39,7 +41,7 @@ const Popup = ({
             aria-labelledby="popup-title"
         >
             <div
-                className="w-full max-w-md rounded-xl border border-border bg-background p-4! shadow-xl"
+                className={`w-full rounded-xl border border-border bg-background p-4! shadow-xl ${contentClassName || "max-w-md"}`}
                 onClick={(event) => event.stopPropagation()}
             >
                 {title && (
@@ -54,19 +56,21 @@ const Popup = ({
 
                 {children}
 
-                <div className="mt-6 flex justify-end gap-3">
-                    {onCancel && (
-                        <Button type="button" variant="outline" onClick={onCancel}>
-                            {cancelText}
-                        </Button>
-                    )}
+                {!hideFooter && (
+                    <div className="mt-6 flex justify-end gap-3">
+                        {onCancel && (
+                            <Button type="button" variant="outline" onClick={onCancel}>
+                                {cancelText}
+                            </Button>
+                        )}
 
-                    {onConfirm && (
-                        <Button type="button" variant={confirmVariant} onClick={onConfirm}>
-                            {confirmText}
-                        </Button>
-                    )}
-                </div>
+                        {onConfirm && (
+                            <Button type="button" variant={confirmVariant} onClick={onConfirm}>
+                                {confirmText}
+                            </Button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

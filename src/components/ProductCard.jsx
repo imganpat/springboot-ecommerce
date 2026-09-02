@@ -10,13 +10,22 @@ export default function ProductCard({ product }) {
     const { addToCart } = useCart();
     const [popupOpen, setPopupOpen] = useState(false);
 
+    const isUnavailable = product.deleted || Number(product.quantity ?? 0) <= 0;
     const primaryImage = product.imageFilename || product.imageFilenames?.[0];
     const imageUrl = primaryImage ? `http://localhost:8080/uploads/images/${primaryImage}` : "";
 
     const handleAddToCart = (event) => {
         event.preventDefault();
-        addToCart(product, 1);
-        setPopupOpen(true);
+
+        if (isUnavailable) {
+            setPopupOpen(true);
+            return;
+        }
+
+        const added = addToCart(product, 1);
+        if (added) {
+            setPopupOpen(true);
+        }
     };
 
     return (
@@ -33,6 +42,12 @@ export default function ProductCard({ product }) {
                         ) : (
                             <div className="text-sm text-gray-400">No image</div>
                         )}
+
+                        {isUnavailable && (
+                            <span className="absolute top-3 left-3 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-600">
+                                Out of stock
+                            </span>
+                        )}
                     </div>
 
                     <div className="p-4! flex flex-col">
@@ -47,8 +62,12 @@ export default function ProductCard({ product }) {
                             <button
                                 type="button"
                                 onClick={handleAddToCart}
-                                className="p-2! rounded-full bg-violet-100 text-violet-600 hover:bg-violet-600 hover:text-white transition"
-                                aria-label={`Add ${product.name} to cart`}
+                                disabled={isUnavailable}
+                                className={`p-2! rounded-full transition ${isUnavailable
+                                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                        : "bg-violet-100 text-violet-600 hover:bg-violet-600 hover:text-white"
+                                    }`}
+                                aria-label={isUnavailable ? `${product.name} is out of stock` : `Add ${product.name} to cart`}
                             >
                                 <ShoppingCart size={18} />
                             </button>
@@ -59,8 +78,12 @@ export default function ProductCard({ product }) {
 
             <Popup
                 open={popupOpen}
-                title="Added to cart"
-                description={`${product.name} has been added to your cart.`}
+                title={isUnavailable ? "Out of stock" : "Added to cart"}
+                description={
+                    isUnavailable
+                        ? `${product.name} is currently unavailable.`
+                        : `${product.name} has been added to your cart.`
+                }
                 confirmText="Continue Shopping"
                 onConfirm={() => setPopupOpen(false)}
                 onCancel={() => setPopupOpen(false)}

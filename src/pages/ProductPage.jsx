@@ -61,12 +61,23 @@ const ProductPage = () => {
     };
 
     const handleAddToCart = () => {
-        addToCart(product, quantity);
-        setPopupMessage({
-            title: "Added to cart",
-            description: `${quantity} ${product.name}${quantity > 1 ? " items" : " item"} added to your cart.`,
-        });
-        setPopupOpen(true);
+        if (product.deleted || Number(product.quantity ?? 0) <= 0) {
+            setPopupMessage({
+                title: "Out of stock",
+                description: `${product.name} is currently unavailable.`,
+            });
+            setPopupOpen(true);
+            return;
+        }
+
+        const added = addToCart(product, quantity);
+        if (added) {
+            setPopupMessage({
+                title: "Added to cart",
+                description: `${quantity} ${product.name}${quantity > 1 ? " items" : " item"} added to your cart.`,
+            });
+            setPopupOpen(true);
+        }
     };
 
     const handleBuyNow = () => {
@@ -87,12 +98,12 @@ const ProductPage = () => {
                 onCancel={() => setPopupOpen(false)}
             />
 
-            <div className="min-h-screen w-screen bg-gray-200 flex items-center justify-center p-6">
+            <div className="flex items-center justify-center">
 
                 {/* Product Card */}
                 <div
                     id="product"
-                    className="w-full max-w-5xl min-h-[550px] bg-white shadow-xl rounded-2xl p-5 flex flex-col md:flex-row gap-8"
+                    className="w-full max-w-5xl  bg-white border shadow rounded-2xl p-5 flex flex-col md:flex-row gap-8"
                 >
 
                     {/* LEFT SIDE - IMAGE */}
@@ -117,7 +128,7 @@ const ProductPage = () => {
                             <img
                                 src={imageUrl}
                                 alt={product.name}
-                                className="w-full h-full max-h-[520px] object-contain p-8"
+                                className="w-80 h-full max-h-[520px] object-contain p-8"
                             />
                         ) : (
                             <div className="text-gray-400">No image available</div>
@@ -201,7 +212,11 @@ const ProductPage = () => {
 
                             {/* Stock */}
                             <div className="mt-6">
-                                {product.quantity > 0 ? (
+                                {product.deleted || Number(product.quantity ?? 0) <= 0 ? (
+                                    <span className="text-red-500 font-medium">
+                                        Out of Stock
+                                    </span>
+                                ) : (
                                     <div className="flex items-center gap-2">
                                         <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
 
@@ -213,15 +228,11 @@ const ProductPage = () => {
                                             ({product.quantity} available)
                                         </span>
                                     </div>
-                                ) : (
-                                    <span className="text-red-500 font-medium">
-                                        Out of Stock
-                                    </span>
                                 )}
                             </div>
 
                             {/* Quantity */}
-                            {product.quantity > 0 && (
+                            {!product.deleted && Number(product.quantity ?? 0) > 0 && (
                                 <div className="mt-6">
                                     <p className="font-semibold text-gray-900 mb-2">
                                         Quantity
@@ -255,22 +266,22 @@ const ProductPage = () => {
                         </div>
 
                         {/* BUTTONS */}
-                        <div className="mt-8 h-40 pt-6">
+                        <div className="mt-8 h-fit pt-6">
 
                             <div className="w-80 flex justify-evenly gap-4">
 
                                 <button
                                     onClick={handleBuyNow}
-                                    disabled={product.quantity === 0}
-                                    className="flex-1 px-6! py-3! rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                    disabled={product.deleted || Number(product.quantity ?? 0) <= 0}
+                                    className="flex-1 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
                                 >
                                     Buy Now
                                 </button>
 
                                 <button
                                     onClick={handleAddToCart}
-                                    disabled={product.quantity === 0}
-                                    className="flex-1 px-6 py-3 rounded-lg border border-blue-500 text-blue-500 font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                    disabled={product.deleted || Number(product.quantity ?? 0) <= 0}
+                                    className="flex-1 px-2 py-2 rounded-lg border border-blue-500 text-blue-500 font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
                                 >
                                     <ShoppingCart className="w-5 h-5" />
                                     Add to Cart

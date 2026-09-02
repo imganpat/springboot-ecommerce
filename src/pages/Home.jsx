@@ -13,20 +13,22 @@ const Home = () => {
             try {
                 setLoading(true);
                 const data = await getAllProducts();
-                setProducts(data);
+                const availableProducts = Array.isArray(data) ? data : [];
+                setProducts(availableProducts);
             } catch (error) {
                 console.error("Failed to fetch products:", error);
+                setProducts([]);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProducts();
-    }, [])
+    }, []);
 
     return (
-        < div className="flex flex-col space-x-8!" >
-            <div className="flex justify-center mt-16! w-full bg-gradient-to-r from-violet-600 to-violet-700 py-12!">
+        < div className="flex flex-col" >
+            <div className="flex justify-center mt-16! w-full bg-linear-to-r from-violet-600 to-violet-700 py-12!">
                 <div className="w-4/5">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                         <div>

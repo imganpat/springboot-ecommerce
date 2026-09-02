@@ -7,10 +7,12 @@ import Register from "@/pages/Register";
 import NotFound from "@/pages/NotFound";
 import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
+import AdminProductsPage from "@/pages/AdminProductsPage";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import ProductPage from "@/pages/ProductPage";
 import AppLayout from "@/layouts/AppLayout";
 import CartPage from "@/pages/CartPage";
+import AdminLayout from "@/layouts/AdminLayout";
 
 const AppRoutes = () => {
     return (
@@ -83,11 +85,20 @@ const AppRoutes = () => {
                     path="/admin/dashboard"
                     element={
                         <ProtectedRoute adminOnly>
-                            <MainLayout>
-                                <AppLayout>
-                                    <AdminDashboard />
-                                </AppLayout>
-                            </MainLayout>
+                            <AdminLayout>
+                                <AdminDashboard />
+                            </AdminLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin/products"
+                    element={
+                        <ProtectedRoute adminOnly>
+                            <AdminLayout>
+                                <AdminProductsPage />
+                            </AdminLayout>
                         </ProtectedRoute>
                     }
                 />

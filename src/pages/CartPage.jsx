@@ -10,6 +10,8 @@ const CartPage = () => {
         updateQuantity,
         cartTotal,
     } = useCart();
+
+    const availableCart = cart.filter((item) => !item.deleted && Number(item.quantity ?? 0) > 0);
     const [removeItemId, setRemoveItemId] = useState(null);
 
     const handleRemoveConfirm = () => {
@@ -19,7 +21,7 @@ const CartPage = () => {
         }
     };
 
-    if (cart.length === 0) {
+    if (availableCart.length === 0) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <h1 className="text-2xl font-bold">
@@ -29,7 +31,7 @@ const CartPage = () => {
         );
     }
 
-    const removeItem = cart.find((item) => item.id === removeItemId);
+    const removeItem = availableCart.find((item) => item.id === removeItemId);
 
     return (
         <>
@@ -51,7 +53,7 @@ const CartPage = () => {
 
                 <div className="max-w-4xl mx-auto space-y-4">
 
-                    {cart.map((item) => (
+                    {availableCart.map((item) => (
                         <div
                             key={item.id}
                             className="bg-white rounded-xl p-5 flex items-center gap-6"
@@ -73,37 +75,41 @@ const CartPage = () => {
                                     ₹{item.price.toLocaleString("en-IN")}
                                 </p>
 
-                                <div className="flex items-center gap-3 mt-4">
+                                {Number(item.quantity ?? 0) <= 0 ? (
+                                    <p className="mt-2 text-sm text-red-500">This product is no longer available.</p>
+                                ) : (
+                                    <div className="flex items-center gap-3 mt-4">
 
-                                    <button
-                                        onClick={() =>
-                                            updateQuantity(
-                                                item.id,
-                                                item.cartQuantity - 1
-                                            )
-                                        }
-                                        className="w-8 h-8 border rounded"
-                                    >
-                                        -
-                                    </button>
+                                        <button
+                                            onClick={() =>
+                                                updateQuantity(
+                                                    item.id,
+                                                    item.cartQuantity - 1
+                                                )
+                                            }
+                                            className="w-8 h-8 border rounded"
+                                        >
+                                            -
+                                        </button>
 
-                                    <span>
-                                        {item.cartQuantity}
-                                    </span>
+                                        <span>
+                                            {item.cartQuantity}
+                                        </span>
 
-                                    <button
-                                        onClick={() =>
-                                            updateQuantity(
-                                                item.id,
-                                                item.cartQuantity + 1
-                                            )
-                                        }
-                                        className="w-8 h-8 border rounded"
-                                    >
-                                        +
-                                    </button>
+                                        <button
+                                            onClick={() =>
+                                                updateQuantity(
+                                                    item.id,
+                                                    item.cartQuantity + 1
+                                                )
+                                            }
+                                            className="w-8 h-8 border rounded"
+                                        >
+                                            +
+                                        </button>
 
-                                </div>
+                                    </div>
+                                )}
 
                             </div>
 
