@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
     { href: "/admin/dashboard", label: "Overview", icon: LayoutGrid },
-    { href: "/admin/products", label: "Products", icon: Package },
+    { href: "/admin/products", label: "Manage products", icon: Package },
 ];
 
 const AdminSidebar = () => {
@@ -45,10 +45,10 @@ const AdminSidebar = () => {
                 ))}
             </nav>
 
-            <div className="mt-8 rounded-2xl bg-muted/30 p-3">
+            {/* <div className="mt-8 rounded-2xl bg-muted/30 p-3">
                 <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Access</p>
                 <p className="mt-1 text-sm font-medium text-foreground">Product inventory</p>
-            </div>
+            </div> */}
 
             <div className="mt-auto shrink-0 border-t border-border/80 pt-4">
                 <Button type="button" variant="outline" className="w-full justify-center gap-2" onClick={logout}>

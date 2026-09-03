@@ -91,7 +91,7 @@ const AdminProductForm = ({
                         </p>
                     )}
 
-                    <div className="flex flex-wrap gap-3 pt-2">
+                    {/* <div className="flex flex-wrap gap-3 pt-2">
                         <Button type="submit" disabled={submitting} className="py-5! px-6!">
                             {submitting ? "Saving..." : isEditing ? "Update product" : "Add product"}
                         </Button>
@@ -100,7 +100,24 @@ const AdminProductForm = ({
                                 Cancel edit
                             </Button>
                         )}
+                    </div> */}
+
+                    <div className="flex flex-wrap gap-3 pt-2">
+                        <Button type="submit" disabled={submitting} className="py-5! px-6!">
+                            {submitting ? "Saving..." : isEditing ? "Update product" : "Add product"}
+                        </Button>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="py-5! px-6!"
+                            onClick={onCancel}
+                            disabled={submitting}
+                        >
+                            Cancel
+                        </Button>
                     </div>
+
                 </form>
             </CardContent>
         </Card>
