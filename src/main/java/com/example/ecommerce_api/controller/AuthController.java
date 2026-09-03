@@ -2,6 +2,7 @@ package com.example.ecommerce_api.controller;
 
 import com.example.ecommerce_api.entity.User;
 import com.example.ecommerce_api.service.AuthService;
+import com.example.ecommerce_api.service.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,9 +15,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+    private final JwtService jwtService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtService jwtService) {
         this.authService = authService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -40,7 +43,8 @@ public class AuthController {
         }
 
         try {
-            return ResponseEntity.ok(toResponse(authService.login(request.email(), request.password())));
+            User user = authService.login(request.email(), request.password());
+            return ResponseEntity.ok(toLoginResponse(user));
         } catch (IllegalArgumentException exception) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
         }
@@ -48,6 +52,11 @@ public class AuthController {
 
     private UserResponse toResponse(User user) {
         return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.isAdmin());
+    }
+
+    private LoginResponse toLoginResponse(User user) {
+        return new LoginResponse(user.getId(), user.getName(), user.getEmail(), user.isAdmin(),
+                jwtService.generateToken(user));
     }
 
     private boolean isBlank(String value) {
@@ -59,5 +68,8 @@ public class AuthController {
     }
 
     public record UserResponse(Long id, String name, String email, boolean admin) {
+    }
+
+    public record LoginResponse(Long id, String name, String email, boolean admin, String token) {
     }
 }

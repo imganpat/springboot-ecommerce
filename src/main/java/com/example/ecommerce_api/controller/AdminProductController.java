@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/products")
@@ -88,6 +90,54 @@ public class AdminProductController {
             return ResponseEntity.badRequest().body(exception.getMessage());
         } catch (IOException exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to store image");
+        }
+    }
+
+    @PostMapping("/{id}/images")
+    public ResponseEntity<Object> uploadProductImages(
+            @RequestHeader(value = "X-User-Email", required = false) String email,
+            @PathVariable Long id,
+            @RequestPart("images") MultipartFile[] images) {
+        if (!isAdmin(email)) {
+            return forbidden();
+        }
+
+        Product product = productService.findById(id);
+        if (product == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (images == null || images.length == 0) {
+            return ResponseEntity.badRequest().body("At least one image is required");
+        }
+
+        try {
+            List<String> storedImages = new ArrayList<>();
+            for (MultipartFile image : images) {
+                if (image != null && !image.isEmpty()) {
+                    storedImages.add(imageStorageService.store(image));
+                }
+            }
+
+            if (storedImages.isEmpty()) {
+                return ResponseEntity.badRequest().body("At least one valid image is required");
+            }
+
+            List<String> previousImages = new ArrayList<>(product.getImageFilenames());
+            product.setImageFilenames(storedImages);
+            Product savedProduct = productService.createProduct(product);
+
+            for (String previousImage : previousImages) {
+                if (previousImage != null && !storedImages.contains(previousImage)) {
+                    imageStorageService.delete(previousImage);
+                }
+            }
+
+            return ResponseEntity.ok(savedProduct);
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        } catch (IOException exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to store images");
         }
     }
 

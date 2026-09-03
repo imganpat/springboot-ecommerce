@@ -20,11 +20,11 @@ public class ProductService {
     }
 
     public List<Product> getAllProducts() {
-        return productRepository.findAllByDeletedFalse();
+        return productRepository.findAll();
     }
 
     public Product getProductById(Long id) {
-        return productRepository.findByIdAndDeletedFalse(id)
+        return productRepository.findById(id)
                 .orElse(null);
     }
 
