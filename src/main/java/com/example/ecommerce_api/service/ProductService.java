@@ -1,6 +1,7 @@
 package com.example.ecommerce_api.service;
 
 import com.example.ecommerce_api.entity.Product;
+import com.example.ecommerce_api.entity.User;
 import com.example.ecommerce_api.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,25 +21,30 @@ public class ProductService {
     }
 
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findAllByDeletedFalse();
     }
 
     public Product getProductById(Long id) {
-        return productRepository.findById(id)
+        return productRepository.findByIdAndDeletedFalse(id)
                 .orElse(null);
     }
 
-    public List<Product> getAllProductsForAdmin() {
-        return productRepository.findAll();
+    public List<Product> getAllProductsForAdmin(Long ownerId) {
+        return productRepository.findAllByOwnerId(ownerId);
     }
 
-    public Product createProduct(Product product) {
+    public Product getProductForAdmin(Long id, Long ownerId) {
+        return productRepository.findByIdAndOwnerId(id, ownerId).orElse(null);
+    }
+
+    public Product createProduct(Product product, User owner) {
+        product.setOwner(owner);
         return productRepository.save(product);
     }
 
-    public Product updateProduct(Long id, Product product) {
+    public Product updateProduct(Long id, Long ownerId, Product product) {
 
-        Product existingProduct = productRepository.findById(id)
+        Product existingProduct = productRepository.findByIdAndOwnerId(id, ownerId)
                 .orElse(null);
 
         if (existingProduct == null) {
@@ -53,20 +59,18 @@ public class ProductService {
         return productRepository.save(existingProduct);
     }
 
-    public boolean deleteProduct(Long id) {
-
-        if (!productRepository.existsById(id)) {
+    public boolean deleteProduct(Long id, Long ownerId) {
+        Product product = productRepository.findByIdAndOwnerId(id, ownerId).orElse(null);
+        if (product == null) {
             return false;
         }
-
-        Product product = productRepository.findById(id).orElseThrow();
         product.setDeleted(true);
         productRepository.save(product);
         return true;
     }
 
-    public boolean restoreProduct(Long id) {
-        Product product = productRepository.findById(id).orElse(null);
+    public boolean restoreProduct(Long id, Long ownerId) {
+        Product product = productRepository.findByIdAndOwnerId(id, ownerId).orElse(null);
 
         if (product == null) {
             return false;

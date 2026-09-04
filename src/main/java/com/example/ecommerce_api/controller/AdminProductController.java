@@ -43,11 +43,12 @@ public class AdminProductController {
             @RequestHeader(value = "X-User-Email", required = false) String email,
             @PathVariable Long id,
             @RequestPart("image") MultipartFile image) {
-        if (!isAdmin(email)) {
+        User owner = findAdmin(email);
+        if (owner == null) {
             return forbidden();
         }
 
-        Product product = productService.findById(id);
+        Product product = productService.getProductForAdmin(id, owner.getId());
         if (product == null) {
             return ResponseEntity.notFound().build();
         }
@@ -55,9 +56,9 @@ public class AdminProductController {
         try {
             String previousFilename = product.getImageFilename();
             product.setImageFilename(imageStorageService.store(image));
-            Product savedProduct = productService.createProduct(product);
+            Product savedProduct = productService.createProduct(product, owner);
             imageStorageService.delete(previousFilename);
-            return ResponseEntity.ok(savedProduct);
+            return ResponseEntity.ok(ProductResponse.from(savedProduct));
         } catch (IllegalArgumentException exception) {
             return ResponseEntity.badRequest().body(exception.getMessage());
         } catch (IOException exception) {
@@ -71,11 +72,12 @@ public class AdminProductController {
             @PathVariable Long id,
             @RequestHeader(value = "Content-Type") String contentType,
             @RequestBody byte[] image) {
-        if (!isAdmin(email)) {
+        User owner = findAdmin(email);
+        if (owner == null) {
             return forbidden();
         }
 
-        Product product = productService.findById(id);
+        Product product = productService.getProductForAdmin(id, owner.getId());
         if (product == null) {
             return ResponseEntity.notFound().build();
         }
@@ -83,9 +85,9 @@ public class AdminProductController {
         try {
             String previousFilename = product.getImageFilename();
             product.setImageFilename(imageStorageService.store(new ByteArrayInputStream(image), contentType));
-            Product savedProduct = productService.createProduct(product);
+            Product savedProduct = productService.createProduct(product, owner);
             imageStorageService.delete(previousFilename);
-            return ResponseEntity.ok(savedProduct);
+            return ResponseEntity.ok(ProductResponse.from(savedProduct));
         } catch (IllegalArgumentException exception) {
             return ResponseEntity.badRequest().body(exception.getMessage());
         } catch (IOException exception) {
@@ -98,11 +100,12 @@ public class AdminProductController {
             @RequestHeader(value = "X-User-Email", required = false) String email,
             @PathVariable Long id,
             @RequestPart("images") MultipartFile[] images) {
-        if (!isAdmin(email)) {
+        User owner = findAdmin(email);
+        if (owner == null) {
             return forbidden();
         }
 
-        Product product = productService.findById(id);
+        Product product = productService.getProductForAdmin(id, owner.getId());
         if (product == null) {
             return ResponseEntity.notFound().build();
         }
@@ -125,7 +128,7 @@ public class AdminProductController {
 
             List<String> previousImages = new ArrayList<>(product.getImageFilenames());
             product.setImageFilenames(storedImages);
-            Product savedProduct = productService.createProduct(product);
+            Product savedProduct = productService.createProduct(product, owner);
 
             for (String previousImage : previousImages) {
                 if (previousImage != null && !storedImages.contains(previousImage)) {
@@ -133,7 +136,7 @@ public class AdminProductController {
                 }
             }
 
-            return ResponseEntity.ok(savedProduct);
+            return ResponseEntity.ok(ProductResponse.from(savedProduct));
         } catch (IllegalArgumentException exception) {
             return ResponseEntity.badRequest().body(exception.getMessage());
         } catch (IOException exception) {
@@ -144,20 +147,25 @@ public class AdminProductController {
     @GetMapping
     public ResponseEntity<Object> getAllProducts(
             @RequestHeader(value = "X-User-Email", required = false) String email) {
-        if (!isAdmin(email)) {
+        User owner = findAdmin(email);
+        if (owner == null) {
             return forbidden();
         }
-        return ResponseEntity.ok(productService.getAllProductsForAdmin());
+        return ResponseEntity.ok(productService.getAllProductsForAdmin(owner.getId()).stream()
+                .map(ProductResponse::from)
+                .toList());
     }
 
     @PostMapping
     public ResponseEntity<Object> createProduct(
             @RequestHeader(value = "X-User-Email", required = false) String email,
             @RequestBody ProductRequest request) {
-        if (!isAdmin(email)) {
+        User owner = findAdmin(email);
+        if (owner == null) {
             return forbidden();
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(toProduct(request)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ProductResponse.from(productService.createProduct(toProduct(request), owner)));
     }
 
     @PutMapping("/{id}")
@@ -165,23 +173,27 @@ public class AdminProductController {
             @RequestHeader(value = "X-User-Email", required = false) String email,
             @PathVariable Long id,
             @RequestBody ProductRequest request) {
-        if (!isAdmin(email)) {
+        User owner = findAdmin(email);
+        if (owner == null) {
             return forbidden();
         }
 
-        Product updatedProduct = productService.updateProduct(id, toProduct(request));
-        return updatedProduct == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(updatedProduct);
+        Product updatedProduct = productService.updateProduct(id, owner.getId(), toProduct(request));
+        return updatedProduct == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(ProductResponse.from(updatedProduct));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteProduct(
             @RequestHeader(value = "X-User-Email", required = false) String email,
             @PathVariable Long id) {
-        if (!isAdmin(email)) {
+        User owner = findAdmin(email);
+        if (owner == null) {
             return forbidden();
         }
 
-        return productService.deleteProduct(id)
+        return productService.deleteProduct(id, owner.getId())
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
@@ -190,23 +202,24 @@ public class AdminProductController {
     public ResponseEntity<Object> restoreProduct(
             @RequestHeader(value = "X-User-Email", required = false) String email,
             @PathVariable Long id) {
-        if (!isAdmin(email)) {
+        User owner = findAdmin(email);
+        if (owner == null) {
             return forbidden();
         }
 
-        return productService.restoreProduct(id)
+        return productService.restoreProduct(id, owner.getId())
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
 
-    private boolean isAdmin(String email) {
+    private User findAdmin(String email) {
         if (email == null || email.isBlank()) {
-            return false;
+            return null;
         }
 
         return userRepository.findByEmail(email.trim().toLowerCase())
-                .map(User::isAdmin)
-                .orElse(false);
+                .filter(User::isAdmin)
+                .orElse(null);
     }
 
     private Product toProduct(ProductRequest request) {

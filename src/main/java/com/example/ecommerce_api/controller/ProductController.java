@@ -29,12 +29,14 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public List<ProductResponse> getAllProducts() {
+        return productService.getAllProducts().stream()
+                .map(ProductResponse::from)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
 
         Product product = productService.getProductById(id);
 
@@ -42,7 +44,7 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(product);
+        return ResponseEntity.ok(ProductResponse.from(product));
     }
 
     @GetMapping("/{id}/image")
