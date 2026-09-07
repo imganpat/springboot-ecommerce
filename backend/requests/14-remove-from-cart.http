@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:8080
+@userEmail = user@example.com
+@cartItemId = 1
+
+### Remove an item from the user's cart
+DELETE {{baseUrl}}/api/cart/{{cartItemId}}
+X-User-Email: {{userEmail}}

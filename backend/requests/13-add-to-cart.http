@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:8080
+@userEmail = user@example.com
+@productId = 1
+
+### Add a product to the user's cart
+POST {{baseUrl}}/api/cart
+X-User-Email: {{userEmail}}
+Content-Type: application/json
+
+{
+  "productId": {{productId}},
+  "quantity": 2
+}

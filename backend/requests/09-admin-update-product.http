@@ -1,0 +1,15 @@
+@baseUrl = http://localhost:8080
+@adminEmail = admin@example.com
+@productId = 1
+
+### Update a product as admin
+PUT {{baseUrl}}/api/admin/products/{{productId}}
+X-User-Email: {{adminEmail}}
+Content-Type: application/json
+
+{
+  "name": "Mechanical Keyboard Pro",
+  "description": "Updated hot-swappable mechanical keyboard",
+  "price": 89.99,
+  "quantity": 30
+}

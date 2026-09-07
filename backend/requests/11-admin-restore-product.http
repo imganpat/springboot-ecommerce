@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:8080
+@adminEmail = admin@example.com
+@productId = 1
+
+### Restore a deleted product as admin
+POST {{baseUrl}}/api/admin/products/{{productId}}/restore
+X-User-Email: {{adminEmail}}

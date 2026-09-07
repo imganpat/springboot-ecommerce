@@ -1,0 +1,18 @@
+@baseUrl = http://localhost:8080
+@adminEmail = admin@example.com
+@productId = 1
+
+### Upload or replace a product image locally
+POST {{baseUrl}}/api/admin/products/{{productId}}/image
+X-User-Email: {{adminEmail}}
+Content-Type: multipart/form-data; boundary=product-image
+
+--product-image
+Content-Disposition: form-data; name="image"; filename="keyboard.jpg"
+Content-Type: image/jpeg
+
+< ./keyboard.jpg
+--product-image--
+
+### Download the product image
+GET {{baseUrl}}/api/products/{{productId}}/image

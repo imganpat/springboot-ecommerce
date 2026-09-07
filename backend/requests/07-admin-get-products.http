@@ -1,0 +1,6 @@
+@baseUrl = http://localhost:8080
+@adminEmail = admin@example.com
+
+### Get all products as admin, including deleted products
+GET {{baseUrl}}/api/admin/products
+X-User-Email: {{adminEmail}}
