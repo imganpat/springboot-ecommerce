@@ -12,6 +12,7 @@ import {
     updateAdminProduct,
     uploadProductImages,
 } from "@/services/adminProductService";
+import { getImageUrl } from "@/config/image";
 
 const emptyForm = {
     name: "",
@@ -166,7 +167,7 @@ const AdminProductsPage = () => {
             quantity: String(product.quantity ?? 0),
         });
         setSelectedImages([]);
-        setImagePreview(product.imageFilename ? `http://localhost:8080/uploads/images/${product.imageFilename}` : "");
+        setImagePreview(product.imageFilename ? getImageUrl(product.imageFilename) : "");
         setActionMessage({ type: "", text: "" });
         setIsProductFormOpen(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -261,7 +262,9 @@ const AdminProductsPage = () => {
                         currentImage={
                             editingProductId
                                 ? products.find((product) => product.id === editingProductId)?.imageFilename
-                                    ? `http://localhost:8080/uploads/images/${products.find((product) => product.id === editingProductId)?.imageFilename}`
+                                    ? getImageUrl(
+                                        products.find((product) => product.id === editingProductId)?.imageFilename
+                                    )
                                     : ""
                                 : ""
                         }

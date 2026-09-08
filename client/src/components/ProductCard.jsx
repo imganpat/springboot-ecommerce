@@ -5,6 +5,7 @@ import { NavLink } from "react-router-dom";
 import { useCart } from "@/context/CartContex";
 import Popup from "@/components/ui/popup";
 import { Card, CardDescription, CardTitle } from "./ui/card";
+import { getImageUrl } from "@/config/image";
 
 export default function ProductCard({ product }) {
     const { addToCart } = useCart();
@@ -12,7 +13,7 @@ export default function ProductCard({ product }) {
 
     const isUnavailable = product.deleted || Number(product.quantity ?? 0) <= 0;
     const primaryImage = product.imageFilename || product.imageFilenames?.[0];
-    const imageUrl = primaryImage ? `http://localhost:8080/uploads/images/${primaryImage}` : "";
+    const imageUrl = getImageUrl(primaryImage);
 
     const handleAddToCart = (event) => {
         event.preventDefault();

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContex";
 import Popup from "@/components/ui/popup";
+import { getImageUrl } from "@/config/image";
 
 const ProductPage = () => {
     const { id } = useParams();
@@ -63,9 +64,7 @@ const ProductPage = () => {
     const activeImage =
         imageList[activeImageIndex] || imageList[0];
 
-    const imageUrl = activeImage
-        ? `http://localhost:8080/uploads/images/${activeImage}`
-        : "";
+    const imageUrl = getImageUrl(activeImage);
 
     const isOutOfStock =
         product.deleted || Number(product.quantity ?? 0) <= 0;

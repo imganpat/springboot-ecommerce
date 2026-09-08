@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import Popup from "@/components/ui/popup";
 import { useCart } from "@/context/CartContex";
+import { getImageUrl } from "@/config/image";
 
 const CartPage = () => {
     const {
@@ -60,7 +61,7 @@ const CartPage = () => {
                         >
 
                             <img
-                                src={`http://localhost:8080/uploads/images/${item.imageFilename}`}
+                                src={getImageUrl(item.imageFilename)}
                                 alt={item.name}
                                 className="w-32 h-32 object-contain bg-gray-100 rounded-lg"
                             />
