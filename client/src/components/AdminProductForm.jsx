@@ -13,25 +13,32 @@ const AdminProductForm = ({
     currentImage,
     submitting,
     actionMessage,
+    nameError,
 }) => {
     const isEditing = Boolean(editingProductId);
 
     return (
         <Card className="border-0 bg-background shadow-sm">
-            <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-semibold">{isEditing ? "Edit product" : "Add new product"}</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2 md:col-span-2">
-                            <label className="text-sm font-medium">Product name</label>
+                            <label htmlFor="product-name" className="text-sm font-medium">Product name</label>
                             <Input
+                                id="product-name"
                                 name="name"
                                 value={formData.name}
                                 onChange={onInputChange}
+                                required
+                                pattern="[A-Za-z ]+"
+                                title="Use letters and spaces only"
+                                aria-invalid={Boolean(nameError)}
+                                aria-describedby={nameError ? "product-name-error" : undefined}
                                 placeholder="Enter product name"
                             />
+                            {nameError && (
+                                <p id="product-name-error" className="text-xs text-destructive">{nameError}</p>
+                            )}
                         </div>
 
                         <div className="space-y-2 md:col-span-2">
@@ -77,7 +84,7 @@ const AdminProductForm = ({
                                 <img
                                     src={imagePreview || currentImage}
                                     alt="Product preview"
-                                    className="mt-2 h-40 w-full rounded-md border object-cover"
+                                    className="mt-2 aspect-video max-h-40 w-full rounded-md border object-cover"
                                 />
                             )}
                         </div>
@@ -102,15 +109,15 @@ const AdminProductForm = ({
                         )}
                     </div> */}
 
-                    <div className="flex flex-wrap gap-3 pt-2">
-                        <Button type="submit" disabled={submitting} className="py-5! px-6!">
+                    <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                        <Button type="submit" disabled={submitting} className="w-full py-5! px-6! sm:w-auto">
                             {submitting ? "Saving..." : isEditing ? "Update product" : "Add product"}
                         </Button>
 
                         <Button
                             type="button"
                             variant="outline"
-                            className="py-5! px-6!"
+                            className="w-full py-5! px-6! sm:w-auto"
                             onClick={onCancel}
                             disabled={submitting}
                         >

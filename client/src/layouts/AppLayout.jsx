@@ -1,9 +1,11 @@
-import { Button } from '@base-ui/react';
-import { ArrowRight, Search, ShoppingBag, UserRound } from 'lucide-react';
+import { ArrowRight, Menu, Search, ShoppingBag, UserRound, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { Button } from '@base-ui/react';
 
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContex';
+import Popup from '@/components/ui/popup';
 
 const navLinkClass = ({ isActive }) =>
     `text-sm font-medium transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
@@ -13,12 +15,30 @@ const AppLayout = ({ children }) => {
     const { user, logout } = useAuth();
     const { cartCount } = useCart();
     const location = useLocation();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
     const isAdminRoute = location.pathname.startsWith('/admin');
+
+    useEffect(() => {
+        setIsMenuOpen(false);
+    }, [location.pathname]);
 
     return (
         <div className="min-h-screen bg-background w-full text-foreground">
+            <Popup
+                open={isLogoutPopupOpen}
+                title="Log out?"
+                description="Are you sure you want to log out of your account?"
+                confirmText="Log out"
+                confirmVariant="destructive"
+                onConfirm={() => {
+                    setIsLogoutPopupOpen(false);
+                    logout();
+                }}
+                onCancel={() => setIsLogoutPopupOpen(false)}
+            />
             {!isAdminRoute && (
-                <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-[#f8f7f3]/95 backdrop-blur-md">
+                <header className="sticky top-0 z-40 w-full border-b border-black/10 bg-[#f8f7f3]/95 backdrop-blur-md">
                     <nav className="mx-auto flex min-h-20 w-full max-w-7xl items-center justify-between gap-6 px-5 sm:px-8 lg:px-10">
                         <NavLink to="/" className="flex items-center gap-3 text-foreground" aria-label="Neki home">
                             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#17211b] text-sm font-bold text-[#93c5fd]">N</span>
@@ -45,9 +65,14 @@ const AppLayout = ({ children }) => {
                                     {cartCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#e56b45] px-1 text-[10px] font-bold text-white">{cartCount}</span>}
                                 </NavLink>
                             </li>
+                            <li className="md:hidden">
+                                <Button type="button" variant="outline" size="icon" aria-label="Open navigation menu" onClick={() => setIsMenuOpen((current) => !current)}>
+                                    {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                                </Button>
+                            </li>
                             {user ? (
                                 <li>
-                                    <Button onClick={logout} className="hidden rounded-full bg-[#17211b] px-4! py-2! text-xs font-semibold text-white hover:bg-[#314438] sm:block">Logout</Button>
+                                    <Button variant="default" onClick={() => setIsLogoutPopupOpen(true)} className="hidden rounded-full px-4! py-2! text-xs font-semibold sm:block bg-[var(--brand-blue)] text-white">Logout</Button>
                                 </li>
                             ) : (
                                 <li>
@@ -56,6 +81,16 @@ const AppLayout = ({ children }) => {
                             )}
                         </ul>
                     </nav>
+                    {isMenuOpen && (
+                        <div className="border-t border-black/10 bg-[#f8f7f3] px-5 py-4 md:hidden">
+                            <div className="flex flex-col gap-3">
+                                <NavLink to="/" className={navLinkClass}>Shop</NavLink>
+                                <a href="/#featured" className={navLinkClass}>Featured</a>
+                                <a href="/#why-Neki" className={navLinkClass}>Why Neki</a>
+                                {user && <NavLink to="/dashboard" className={navLinkClass}>Your account</NavLink>}
+                            </div>
+                        </div>
+                    )}
                 </header>
             )}
 

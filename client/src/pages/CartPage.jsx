@@ -46,9 +46,9 @@ const CartPage = () => {
                 onCancel={() => setRemoveItemId(null)}
             />
 
-            <div className="bg-gray-100 p-8 mt-20!">
+            <div className="mt-4 bg-gray-100 p-4 sm:mt-12! sm:p-8">
 
-                <h1 className="text-3xl font-bold mb-8">
+                <h1 className="mb-6 text-2xl font-bold sm:mb-8 sm:text-3xl">
                     Shopping Cart
                 </h1>
 
@@ -57,13 +57,13 @@ const CartPage = () => {
                     {availableCart.map((item) => (
                         <div
                             key={item.id}
-                            className="bg-white rounded-xl p-5 flex items-center gap-6"
+                            className="flex flex-col items-start gap-4 rounded-xl bg-white p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5"
                         >
 
                             <img
                                 src={getImageUrl(item.imageFilename)}
                                 alt={item.name}
-                                className="w-32 h-32 object-contain bg-gray-100 rounded-lg"
+                                className="h-28 w-full rounded-lg bg-gray-100 object-contain sm:h-32 sm:w-32"
                             />
 
                             <div className="flex-1">
@@ -114,7 +114,7 @@ const CartPage = () => {
 
                             </div>
 
-                            <div className="text-right">
+                            <div className="flex w-full items-center justify-between gap-4 text-left sm:w-auto sm:text-right">
 
                                 <p className="font-bold">
                                     ₹{(
@@ -134,13 +134,13 @@ const CartPage = () => {
                         </div>
                     ))}
 
-                    <div className="bg-white rounded-xl p-6 flex justify-between">
+                    <div className="flex flex-col gap-2 rounded-xl bg-white p-5 sm:flex-row sm:justify-between sm:p-6">
 
                         <span className="text-xl font-semibold">
                             Total
                         </span>
 
-                        <span className="text-2xl font-bold">
+                        <span className="text-xl font-bold sm:text-2xl">
                             ₹{cartTotal.toLocaleString("en-IN")}
                         </span>
 

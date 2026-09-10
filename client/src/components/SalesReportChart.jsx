@@ -25,17 +25,17 @@ const salesData = [
 const chartConfig = {
     sales: {
         label: "Sales",
-        color: "hsl(var(--chart-1))",
+        color: "var(--brand-blue)",
     },
 };
 
 const SalesReportChart = () => {
     return (
-        <Card className="shadow-sm">
+        <Card className="border-[var(--brand-blue)]/15 bg-white/90 shadow-sm">
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between gap-3">
                     <CardTitle className="text-sm text-muted-foreground">Sales report</CardTitle>
-                    <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600">
+                    <span className="rounded-full bg-[var(--brand-blue)]/10 px-2 py-1 text-xs font-medium text-[var(--brand-blue)]">
                         +18.2%
                     </span>
                 </div>
@@ -51,7 +51,7 @@ const SalesReportChart = () => {
 
                 <ChartContainer config={chartConfig} className="h-[260px] w-full">
                     <BarChart data={salesData} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
-                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--brand-sky-soft)" opacity={0.35} />
                         <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
                         <YAxis
                             tickLine={false}
@@ -59,7 +59,7 @@ const SalesReportChart = () => {
                             tickFormatter={(value) => `₹${value / 1000}k`}
                         />
                         <ChartTooltip
-                            cursor={{ fill: "rgba(148, 163, 184, 0.08)" }}
+                            cursor={{ fill: "var(--brand-sky-soft)", opacity: 0.12 }}
                             content={<ChartTooltipContent formatter={(value) => `₹${Number(value).toLocaleString()}`} />}
                         />
                         <Bar dataKey="sales" radius={[6, 6, 0, 0]} fill="var(--color-sales)" />

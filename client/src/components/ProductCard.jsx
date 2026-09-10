@@ -61,7 +61,10 @@ export default function ProductCard({ product }) {
 
                             <div className="mt-auto flex items-center justify-between border-t border-black/10 pt-4">
                                 <span className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    ₹{product.price}
+                                    ₹
+                                    {Number(
+                                        product.price
+                                    ).toLocaleString("en-IN")}
                                 </span>
                                 <button
                                     type="button"

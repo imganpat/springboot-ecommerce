@@ -35,10 +35,10 @@ const AdminDashboard = () => {
                     <h1 className="mt-2 text-3xl font-bold">Welcome, {user?.name || "Admin"}</h1>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" type="button" onClick={() => window.location.assign("/admin/products")}>
+                    <Button type="button" onClick={() => window.location.assign("/admin/products")}>
                         Manage products
                     </Button>
-                    <Button variant="default" type="button" onClick={() => window.location.assign("/dashboard")}>
+                    <Button variant="outline" type="button" onClick={() => window.location.assign("/dashboard")}>
                         User dashboard
                     </Button>
                 </div>

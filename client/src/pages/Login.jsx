@@ -87,7 +87,7 @@ const Login = () => {
     };
 
     return (
-        <Card className="border-black/10 w-96 bg-white shadow-xl shadow-black/10 py-0! space-y-4">
+        <Card className="w-full max-w-md space-y-4 border-black/10 bg-white py-0! shadow-xl shadow-black/10">
             <CardHeader className="gap-3 p-4! sm:p-6! pb-0! sm:pb-0!">
                 <div className="flex size-11 items-center justify-center rounded-xl bg-black text-white">
                     <UserPlus aria-hidden="true" className="size-5" />

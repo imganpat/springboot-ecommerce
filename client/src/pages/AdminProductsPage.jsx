@@ -33,6 +33,7 @@ const AdminProductsPage = () => {
     const [isProductFormOpen, setIsProductFormOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [actionMessage, setActionMessage] = useState({ type: "", text: "" });
+    const [nameError, setNameError] = useState("");
 
     const fetchProducts = async () => {
         try {
@@ -54,6 +55,7 @@ const AdminProductsPage = () => {
         setSelectedImages([]);
         setImagePreview("");
         setEditingProductId(null);
+        setNameError("");
     };
 
     const openCreateProductForm = () => {
@@ -63,6 +65,13 @@ const AdminProductsPage = () => {
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
+
+        if (name === "name") {
+            const sanitizedName = value.replace(/[^A-Za-z\s]/g, "");
+            setNameError(sanitizedName !== value ? "Product name can contain letters and spaces only." : "");
+            setFormData((current) => ({ ...current, name: sanitizedName }));
+            return;
+        }
 
         if (name === "price") {
             if (value !== "" && !/^\d*\.?\d*$/.test(value)) return;
@@ -109,8 +118,10 @@ const AdminProductsPage = () => {
                 quantity: Number(quantityValue),
             };
 
-            if (!payload.name) {
-                throw new Error("Product name is required.");
+            if (!/^[A-Za-z]+(?:\s+[A-Za-z]+)*$/.test(payload.name)) {
+                const message = "Product name is required and can contain letters and spaces only.";
+                setNameError(message);
+                throw new Error(message);
             }
 
             if (!/^\d+(\.\d{1,2})?$/.test(priceValue) || Number(priceValue) < 0) {
@@ -213,12 +224,12 @@ const AdminProductsPage = () => {
 
     return (
         <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 md:px-6">
-            <div className="flex flex-col gap-3 rounded-3xl border border-border/80 bg-card p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-4 rounded-3xl border border-border/80 bg-card p-4 shadow-sm sm:p-5 md:flex-row md:items-center md:justify-between">
                 <div>
                     <p className="text-sm font-medium text-muted-foreground">Inventory</p>
                     <h1 className="mt-2 text-3xl font-bold">Product catalog</h1>
                 </div>
-                <Button type="button" onClick={openCreateProductForm}>Add product</Button>
+                <Button type="button" className="w-full sm:w-auto" onClick={openCreateProductForm}>Add product</Button>
             </div>
 
             {loading ? (
@@ -226,7 +237,7 @@ const AdminProductsPage = () => {
             ) : error ? (
                 <p className="text-sm text-destructive">{error}</p>
             ) : (
-                <div className="rounded-3xl border border-border/80 bg-card p-4 shadow-sm">
+                <div className="rounded-3xl border border-border/80 bg-card p-2 shadow-sm sm:p-4">
                     <AdminProductTable
                         products={products}
                         onEdit={handleEdit}
@@ -245,7 +256,7 @@ const AdminProductsPage = () => {
                     resetForm();
                 }}
                 hideFooter
-                contentClassName="max-w-3xl"
+                contentClassName="max-h-[calc(100vh-2rem)] max-w-3xl overflow-y-auto"
             >
                 <div className="mt-4">
                     <AdminProductForm
@@ -270,6 +281,7 @@ const AdminProductsPage = () => {
                         }
                         submitting={submitting}
                         actionMessage={actionMessage}
+                        nameError={nameError}
                     />
                 </div>
             </Popup>

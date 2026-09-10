@@ -47,12 +47,12 @@ const Home = () => {
     return (
         <div className="flex flex-col gap-14 pb-12">
             {/* Hero */}
-            <section className="relative isolate overflow-hidden rounded-[2rem] bg-[#17211b] px-6 py-12 text-white sm:px-12 lg:min-h-[450px] lg:px-16 lg:py-16">
-                <div className="absolute -right-20 -top-24 -z-10 h-80 w-80 rounded-full bg-[#60a5fa] blur-3xl opacity-20" />
+            <section className="relative isolate overflow-hidden rounded-[2rem] bg-[var(--brand-ink)] px-6 py-12 text-white sm:px-12 lg:min-h-[450px] lg:px-16 lg:py-16">
+                <div className="absolute -right-20 -top-24 -z-10 h-80 w-80 rounded-full bg-[var(--brand-sky)] blur-3xl opacity-20" />
 
                 <div className="grid items-center gap-10 lg:grid-cols-[1fr_0.8fr]">
                     <div className="max-w-xl">
-                        <p className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#93c5fd]">
+                        <p className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--brand-sky-soft)]">
                             <BadgeCheck className="h-4 w-4" />
                             Curated tech, made simple
                         </p>
@@ -68,7 +68,7 @@ const Home = () => {
 
                         <Link
                             to="#featured"
-                            className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#3b82f6] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#60a5fa]"
+                            className="mt-8 inline-flex items-center gap-3 rounded-full bg-[var(--brand-blue)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-sky)]"
                         >
                             Explore collection
                             <ArrowRight className="h-4 w-4" />
@@ -77,7 +77,7 @@ const Home = () => {
 
                     <div className="relative hidden min-h-72 items-center justify-center lg:flex">
                         <div className="absolute h-64 w-64 rounded-full border border-white/10" />
-                        <div className="absolute h-48 w-48 rounded-full border border-[#93c5fd]/40" />
+                        <div className="absolute h-48 w-48 rounded-full border border-[var(--brand-sky-soft)]/40" />
                     </div>
                 </div>
 
